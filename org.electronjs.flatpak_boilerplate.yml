@@ -90,4 +90,4 @@ modules:
           - 'exec zypak-wrapper /app/lib/MyAwesomeApp/MyAwesomeApp --ozone-platform=x11 "$@"' # uses zypak to execute the compiled binary
       #- type: patch
       #  path: my-cool-patch.patch 
-      # use a patch if you want to edit any code from archives without having to modify any main repositories
+      # use a patch if you want to edit any code from archives without having to modify any main repositories; aka edit any code or text right before the build process

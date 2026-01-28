@@ -38,6 +38,8 @@ modules:
     build-commands:
       - mkdir -p .electron-mirror # the electron binary will be put here; must be included in vendored tarball 
       - |
+        # this checks the arch to make sure the correct electron ZIP is moved to the ./electron-mirror directory for compilation
+        # the ./electron-mirror directory is the one electron-packager will use with the --electron-zip-dir flag
         if [ "$(uname -m)" = "x86_64" ]; then 
             mv myawesomeapp/cache/electron/electron-v40.0.0-linux-x64.zip .electron-mirror/
             DIST_SUBDIR="MyAwesomeApp-linux-x64"
@@ -45,7 +47,6 @@ modules:
             mv myawesomeapp/cache/electron/electron-v40.0.0-linux-arm64.zip .electron-mirror/
             DIST_SUBDIR="MyAwesomeApp-linux-arm64"
         fi
-        # the above checks the arch to make sure the correct electron ZIP is moved for compilation
   
         chmod -R +x myawesomeapp/node_modules/ # make everything in node_modules executable so the compiler doesn't whine or anything like that
         sed -i 's/"electron": "\^40.0.0"/"electron": "40.0.0"/g' myawesomeapp/package.json # if a carat is there, remove it; the carat means

@@ -9,14 +9,34 @@ To know more about how to use this template, you can [read the YAML](https://git
 # FAQ
 ## My app keeps crashing due to some weird DBUS/MESA-related error
 This *usually* means that your app is trying to launch using native Wayland when the version of Electron you're using doesn't support it.
-To force XWayland (an X11-compatibility layer) for the best compatibility, add `- --socket=x11` (unless `- --socket=fallback-x11` is already there) to the `finish-args` of your YAML,
-remove `- --socket=wayland` (if it is there) to avoid linter errors, and add the following to your `run.sh` script:
-- `- 'export WAYLAND_DISPLAY=""'`
+To force XWayland (an X11-compatibility layer) for the best compatibility, add 
+```yaml
+- --socket=x11
+```
+(unless 
+```yaml
+- --socket=fallback-x11
+```
+is already there) to the `finish-args` of your YAML,
+remove 
+```yaml
+- --socket=wayland
+```
+(if it is there) to avoid linter errors, and add the following to your `run.sh` script:
+- ```yaml
+  - 'export WAYLAND_DISPLAY=""'
+  ```
  and
-- `- 'export XDG_SESSION_TYPE="x11"'`
+- ```yaml
+  - 'export XDG_SESSION_TYPE="x11"'
+  ```
  to your YAML to **force** XWayland no matter what.
 
-If any more issues occur, as a last resort add the flag `--ozone-platform=x11` to your `run.sh`'s `zypak-wrapper` line.
+If any more issues occur, as a last resort add the flag 
+```yaml
+--ozone-platform=x11
+```
+to your `run.sh`'s `zypak-wrapper` line.
 For example:
 ```yaml
 sources:

@@ -62,7 +62,7 @@ then you can add:
 build-args:
   - --share=network
 ```
-**but I heavily discourage this unless it's for local builds!**
+**but DON'T DO THIS this unless it's for local builds!**
 
 ## Why does my app show DBUS errors on launch but after a few seconds launches fine
 This is because Electron attempts to access its DBUS before it is properly initialized.

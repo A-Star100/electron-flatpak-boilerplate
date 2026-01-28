@@ -28,8 +28,11 @@ sources:
     - 'exec zypak-wrapper /app/lib/MyAwesomeApp/MyAwesomeApp --ozone-platform=x11 "$@"' # uses zypak to execute the compiled binary - zypak comes with the Electron BaseApp but if you add it as a source to be in
 ```
 ## My builds keeps failing when running `npm install` or due to ENOTCACHED (even if assets are cached)
-This means that you're attempting to **get packages from INSIDE the build process**, which isn't great for [security reasons](https://github.com/flathub/flathub/issues/3392#issuecomment-1207174370), which is why it is blocked by default. Ideally, you would add a source inside `sources` so any needed files would be downloaded **BEFORE** the build process.
+This means that you're attempting to **get packages from INSIDE the build process**, which isn't great for [security reasons](https://github.com/flathub/flathub/issues/3392#issuecomment-1207174370), so it is blocked by default. 
+
+Ideally, you would add a source inside `sources` so any needed files would be downloaded **BEFORE** the build process.
 In order to fix this you will probably need to rewrite a lot of your YAML. The YAML in this repository doesn't have these errors because I rewrote it after realizing this.
+
 If you **really want to allow network access (note that if you are publishing to Flathub the reviewers will ask for this to be removed from the manifest!)**,
 then you can add:
 ```yaml

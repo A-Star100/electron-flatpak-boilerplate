@@ -1,5 +1,5 @@
 # electron-flatpak-boilerplate
-This boilerplate assumes you have the following:
+This boilerplate (works offline) assumes you have the following:
 
 - A working Electron app (obviously).
 - And a vendored tarball; this should have your app's code (`main.js`, `preload.js`, etc), any licenses and in-app libraries for them, a README (if you want), any icons and any `.desktop` or `.metainfo.xml` files (for Flathub), and the Electron binaries you need (such as `electron-v40.0.0-linux-x64.zip` from [the official Electron GitHub repo](https://github.com/electron/electron/releases) in the `cache/` folder of your tarball (you can also add this in the `sources` property of the YAML as a file so it isn't extracted; this is because Electron build tools expect a zipped archive containing any needed binaries).

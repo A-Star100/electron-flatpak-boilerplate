@@ -1,0 +1,93 @@
+app-id: com.example.myawesomeapp # your app ID here!
+runtime: org.freedesktop.Platform # freedesktop runtime; this is essential for any flatpak
+runtime-version: '25.08' # keep this the latest available for security
+sdk: org.freedesktop.Sdk
+base: org.electronjs.Electron2.BaseApp # this BaseApp comes with zypak-wrapper (to execute the binary in shellscript properly) but you can add it as a source and remove the BaseApp
+base-version: '25.08' # also keep this latest available for security
+command: run.sh # run shellscript
+separate-locales: false
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.node22 # this is Node.js! Without this the app will not compile, so do not remove this!
+
+finish-args:
+  - --share=network # this is for basic network access of any kind in the finished app
+  - --share=ipc # IPC is needed for electron because otherwise the renderer can't communicate with the Node.js environment - causing Electron to crash
+  - --socket=x11 # this is for x11 - don't add --socket=wayland, they are never together
+  # to add native wayland support uncomment these and REMOVE "- --socket=x11"
+  # - --socket=wayland
+  # - --env=ELECTRON_OZONE_PLATFORM_HINT=auto
+  # also remove - 'export XDG_SESSION_TYPE="x11"' and  - 'export WAYLAND_DISPLAY=""' so native wayland can be used properly
+  # note that vanilla electron works WAAAAYYYY better with XWayland (x11 compat layer) but if you need native wayland use this
+  - --socket=pulseaudio # this is for audio - without it no audio will play in your app
+  # for any directories your app writes to and creates by itself, add: - --persist=my-app-directory
+  # note that you WILL need to adapt your code to handle the new location for the dir
+  # which is in most cases, ~/.var/app/YOUR_APP_ID/my-app-directory
+  # you can use a patchfile 
+  # for hardware acceleration for the finished app, add: - --device=dri
+  # for your app to be able to access ALL hardware devices on the system (be wise when you use this), add: - --device=all
+
+modules:
+  - name: myawesomeapp
+    buildsystem: simple # simple buildsystem; nice and clean
+    build-options:
+      append-path: /usr/lib/sdk/node22/bin # where node22 files are located
+      env:
+        - NODE_PATH: /usr/lib/sdk/node22/lib/node_modules # path to node_modules
+        - NPM_CONFIG_OFFLINE: "true" # tell npm to go offline; sometimes it will not cooperate
+        # redirects any temp files to build dir; USE THIS FOR ANY TMPDIR RELATED ISSUES and see if this helps: - TMPDIR: /run/build/myawesomeapp/tmp
+    build-commands:
+      - mkdir -p .electron-mirror # the electron binary will be put here; must be included in vendored tarball 
+      - |
+        # checks the arch to make sure the correct electron ZIP is moved for compilation
+        if [ "$(uname -m)" = "x86_64" ]; then 
+            mv myawesomeapp/cache/electron/electron-v40.0.0-linux-x64.zip .electron-mirror/
+            DIST_SUBDIR="MyAwesomeApp-linux-x64"
+        elif [ "$(uname -m)" = "aarch64" ]; then
+            mv myawesomeapp/cache/electron/electron-v40.0.0-linux-arm64.zip .electron-mirror/
+            DIST_SUBDIR="MyAwesomeApp-linux-arm64"
+        fi
+  
+        chmod -R +x myawesomeapp/node_modules/ # make everything in node_modules executable so the compiler doesn't whine or anything like that
+        sed -i 's/"electron": "\^40.0.0"/"electron": "40.0.0"/g' myawesomeapp/package.json # if a carat is there, remove it; the carat means
+        # that the compiler will SEARCH for the latest compatible electron version from online; but flatpak builds lack any network access
+        # so this will immediately fail and halt the build
+        ROOT_DIR="$(pwd)" # enforce a root dir so no tools get confused
+        export ELECTRON_SKIP_BINARY_DOWNLOAD=1
+          
+        # this assumes you have a subdirectory for your electron app, and main.js is in there. if it is not remove this step and any references to this subdirectory
+        cd myawesomeapp
+        ./node_modules/.bin/electron-packager . MyAwesomeApp \
+          --platform=linux \
+          --out=dist/ \
+          --overwrite \
+          --no-prune \
+          --electron-zip-dir="$ROOT_DIR/.electron-mirror" # don't remove this because it tells the compiler which directory the electron binary is in
+        # the above compiles the app with electron-packager. if you want to use electron-builder it will NOT work with this YAML out of the box
+        # but I tested and apps with electron-builder package.jsons usually compile in electron-packager
+        # just note that any electron-builder only options will be ignored in electron-packager
+  
+        mkdir -p /app/lib/MyAwesomeApp # make the main executable directory
+        cp -r dist/$DIST_SUBDIR/* /app/lib/MyAwesomeApp/ # move compiled output to main executable directory
+        
+        # move other files like the PNG and .desktop from upstream tarball to expected locations
+      - install -Dm644 myawesomeapp/icon.png /app/share/icons/hicolor/512x512/apps/com.example.MyAwesomeApp.png
+      - install -Dm644 myawesomeapp/com.example.MyAwesomeApp.desktop /app/share/applications/com.example.MyAwesomeApp.desktop
+      - install -Dm644 myawesomeapp/com.example.MyAwesomeApp.metainfo.xml /app/share/metainfo/com.example.MyAwesomeApp.metainfo.xml
+      - install -Dm755 run.sh /app/bin/run.sh
+
+    sources:
+      - type: archive
+        url: # your tarball is here! make sure to create a cache/ folder with the Electron binaries for each arch
+        # you can get the electron binaries from https://github.com/electron/electron/releases
+        # in that list; make sure to download only electron-v40.0.0-linux-x64.zip (for x64) and/or electron-v40.0.0-linux-arm64.zip (for arm64)
+        # you can download for other arches as well; but flathub only supports x64 and arm64
+        sha256: # sha256 of your tarball is here; you can get it using sha256sum path/to/tarball
+      - type: script
+        dest-filename: run.sh # final filename
+        commands:
+          - 'export WAYLAND_DISPLAY=""' # manually unset WAYLAND_DISPLAY to force XWayland
+          - 'export XDG_SESSION_TYPE="x11"' # also set session type for the sandbox to be x11 to further force XWayland
+          - 'exec zypak-wrapper /app/lib/MyAwesomeApp/MyAwesomeApp --ozone-platform=x11 "$@"' # uses zypak to execute the compiled binary
+      #- type: patch
+      #  path: my-cool-patch.patch 
+      # use a patch if you want to edit any code from archives without having to modify any main repositories

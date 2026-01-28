@@ -85,8 +85,8 @@ modules:
       - type: script
         dest-filename: run.sh # final filename
         commands:
-          - 'export WAYLAND_DISPLAY=""' # manually unset WAYLAND_DISPLAY to force XWayland
-          - 'export XDG_SESSION_TYPE="x11"' # also set session type for the sandbox to be x11 to further force XWayland
+          - 'export WAYLAND_DISPLAY=""' # manually unset WAYLAND_DISPLAY to force XWayland (only for the app's sandbox, not the whole OS if you're confused)
+          - 'export XDG_SESSION_TYPE="x11"' # also set session type for the sandbox to be x11 to further force XWayland (also only for the app's sandbox, not the whole OS if you're confused)
           - 'exec zypak-wrapper /app/lib/MyAwesomeApp/MyAwesomeApp --ozone-platform=x11 "$@"' # uses zypak to execute the compiled binary
       #- type: patch
       #  path: my-cool-patch.patch 

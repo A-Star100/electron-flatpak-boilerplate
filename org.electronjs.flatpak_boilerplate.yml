@@ -7,8 +7,8 @@ base-version: '25.08' # also keep this latest available for security
 command: run.sh # the shellscript to launch the app
 separate-locales: false
 sdk-extensions:
-  - org.freedesktop.Sdk.Extension.node22 # this is Node.js! Without this the app will not compile, so do not remove this!
-
+  - org.freedesktop.Sdk.Extension.node22 # this is Node.js! Without this the app will not compile, so DO NOT remove this!!!
+  
 finish-args:
   - --share=network # this is for basic network access of any kind in the finished app
   - --share=ipc # IPC is needed for electron because otherwise the renderer can't communicate with the Node.js environment - causing Electron to crash

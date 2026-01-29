@@ -1,10 +1,11 @@
 app-id: com.example.myawesomeapp # your app ID here!
 runtime: org.freedesktop.Platform # freedesktop runtime; this is essential for any flatpak
 runtime-version: '25.08' # keep this the latest available for security
-sdk: org.freedesktop.Sdk
+sdk: org.freedesktop.Sdk # freedesktop SDK; also essential for any flatpak
 # the electron BaseApp is handy because it comes with zypak-wrapper (to execute the binary in shellscript properly)
 base: org.electronjs.Electron2.BaseApp
-# it also comes with several other dependencies to ensure stability; so I don't recommend removing it right away. but you can add it as a source and remove the BaseApp
+# it also comes with several other dependencies to ensure stability; so I don't recommend removing it right away. but you can add any necessary dependencies as a source
+# and remove the BaseApp if you want
 base-version: '25.08' # also keep this latest available for security
 command: run.sh # the shellscript to launch the app
 separate-locales: false

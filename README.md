@@ -1,6 +1,6 @@
 # electron-flatpak-boilerplate
 > [!IMPORTANT]
-> Flathub's Electron boilerplate has been adapted to support the latest version of Electron
+> [Flathub's Electron boilerplate](https://github.com/flathub/org.flathub.electron-sample-app) has been adapted to support the latest version of Electron
 > So this boilerplate is now just an alternative way to do the same.
 > Thus, it will no longer be actively maintained, unfortunately.
 
